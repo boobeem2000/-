@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎮 Atsuko式スピーキング再起動ゲーム</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'メイリオ', 'Meiryo', 'Hiragino Sans', sans-serif;
+            background: linear-gradient(135deg, #E8F5E8, #FFE4B5);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .game-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .game-header {
+            background: linear-gradient(135deg, #2E8B57, #4CAF50);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: sparkle 3s ease-in-out infinite;
+        }
+
+        @keyframes sparkle {
+            0%, 100% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(180deg) scale(1.1); }
+        }
+
+        .game-title {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .game-subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .progress-section {
+            padding: 30px;
+            background: #FFE4B5;
+            border-bottom: 3px solid #FF8C00;
+        }
+
+        .progress-title {
+            font-size: 1.5em;
+            color: #FF8C00;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .score-display {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .score-number {
+            font-size: 3em;
+            font-weight: bold;
+            color: #2E8B57;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .score-total {
+            font-size: 1.2em;
+            color: #666;
+        }
+
+        .progress-bar-container {
+            background: #ddd;
+            border-radius: 25px;
+            height: 30px;
+            margin: 20px 0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar {
+            background: linear-gradient(90deg, #2E8B57, #4CAF50);
+            height: 100%;
+            width: 0%;
+            border-radius: 25px;
+            transition: width 0.8s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .level-up-message {
+            background: linear-gradient(135deg, #FF8C00, #FFA500);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            font-size: 1.3em;
+            font-weight: bold;
+            margin: 20px 0;
+            display: none;
+            animation: bounce 0.6s ease;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        .missions-section {
+            padding: 30px;
+        }
+
+        .mission-card {
+            background: white;
+            border: 2px solid #E8F5E8;
+            border-radius: 15px;
+            margin: 15px 0;
+            padding: 20px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mission-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            border-color: #2E8B57;
+        }
+
+        .mission-card.completed {
+            background: linear-gradient(135deg, #E8F5E8, #F0FFF0);
+            border-color: #4CAF50;
+        }
+
+        .mission-card.completed::before {
+            content: '✓';
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 2em;
+            color: #4CAF50;
+            animation: checkmark 0.5s ease;
+        }
+
+        @keyframes checkmark {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .mission-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .mission-day {
+            background: #2E8B57;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .mission-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #2E8B57;
+            margin-bottom: 10px;
+        }
+
+        .mission-instruction {
+            color: #666;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .english-example {
+            background: #E6F3FF;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #2E8B57;
+            margin-bottom: 15px;
+            font-style: italic;
+            color: #2E8B57;
+        }
+
+        .mission-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+        }
+
+        .reflection-input {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #E8F5E8;
+            border-radius: 8px;
+            margin-right: 15px;
+            font-family: inherit;
+            transition: border-color 0.3s ease;
+        }
+
+        .reflection-input:focus {
+            outline: none;
+            border-color: #2E8B57;
+        }
+
+        .score-select {
+            padding: 8px 15px;
+            border: 2px solid #E8F5E8;
+            border-radius: 8px;
+            background: white;
+            font-family: inherit;
+            margin-right: 15px;
+            transition: border-color 0.3s ease;
+        }
+
+        .score-select:focus {
+            outline: none;
+            border-color: #2E8B57;
+        }
+
+        .complete-btn {
+            background: linear-gradient(135deg, #2E8B57, #4CAF50);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .complete-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(46, 139, 87, 0.3);
+        }
+
+        .complete-btn:active {
+            transform: translateY(0);
+        }
+
+        .complete-btn.completed {
+            background: linear-gradient(135deg, #4CAF50, #66BB6A);
+        }
+
+        .reward {
+            background: #FFE4B5;
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            color: #FF8C00;
+            font-weight: bold;
+            margin-top: 10px;
+            display: inline-block;
+        }
+
+        .instructions-section {
+            background: #F8F9FA;
+            padding: 30px;
+            border-top: 3px solid #2E8B57;
+        }
+
+        .instructions-title {
+            font-size: 1.5em;
+            color: #2E8B57;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .instruction-item {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+            border-left: 4px solid #2E8B57;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .celebration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .celebration-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            animation: celebrationPop 0.6s ease;
+        }
+
+        @keyframes celebrationPop {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .celebration-title {
+            font-size: 2.5em;
+            color: #FF8C00;
+            margin-bottom: 20px;
+        }
+
+        .celebration-message {
+            font-size: 1.2em;
+            color: #2E8B57;
+            margin-bottom: 30px;
+        }
+
+        .close-celebration {
+            background: #2E8B57;
+            color: white;
+            border: none;
+            padding: 10px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1.1em;
+        }
+
+        @media (max-width: 768px) {
+            .game-title {
+                font-size: 2em;
+            }
+            
+            .mission-controls {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .reflection-input,
+            .score-select {
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <!-- Game Header -->
+        <div class="game-header">
+            <h1 class="game-title">🎮 Atsuko式スピーキング再起動ゲーム</h1>
+            <p class="game-subtitle">〜7 Days to Restart Your English Voice〜</p>
+        </div>
+
+        <!-- Progress Section -->
+        <div class="progress-section">
+            <h2 class="progress-title">📊 進捗状況</h2>
+            <div class="score-display">
+                <div class="score-number" id="currentScore">0</div>
+                <div class="score-total">/ 21点</div>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <div class="level-up-message" id="levelUpMessage">
+                🏆 LEVEL UP! おめでとうございます！<br>
+                あなたの英語スピーキングが再起動しました！
+            </div>
+        </div>
+
+        <!-- Missions Section -->
+        <div class="missions-section">
+            <h2 style="text-align: center; color: #2E8B57; margin-bottom: 30px; font-size: 1.8em;">🎯 7日間のミッション</h2>
+            
+            <!-- Mission 1 -->
+            <div class="mission-card" id="mission1">
+                <div class="mission-header">
+                    <div class="mission-day">Day 1</div>
+                </div>
+                <div class="mission-title">Restartボタンを押せ！</div>
+                <div class="mission-instruction">「今週から再開します」と言おう</div>
+                <div class="english-example">I am restarting my English journey today.</div>
+                <div class="mission-controls">
+                    <input type="text" class="reflection-input" placeholder="今日の気づきを記入..." id="reflection1">
+                    <select class="score-select" id="score1">
+                        <option value="0">得点を選択</option>
+                        <option value="1">1点 - 挑戦した</option>
+                        <option value="2">2点 - 少しできた</option>
+                        <option value="3">3点 - まあまあできた</option>
+                        <option value="4">4点 - よくできた</option>
+                        <option value="5">5点 - 完璧！</option>
+                    </select>
+                    <button class="complete-btn" onclick="completeMission(1)">完了</button>
+                </div>
+                <div class="reward">☕ コーヒーご褒美</div>
+            </div>
+
+            <!-- Mission 2 -->
+            <div class="mission-card" id="mission2">
+                <div class="mission-header">
+                    <div class="mission-day">Day 2</div>
+                </div>
+                <div class="mission-title">3文ストーリー職人</div>
+                <div class="mission-instruction">朝の出来事を3文で語れ</div>
+                <div class="english-example">I overslept, missed the bus, but smiled anyway.</div>
+                <div class="mission-controls">
+                    <input type="text" class="reflection-input" placeholder="今日の気づきを記入..." id="reflection2">
+                    <select class="score-select" id="score2">
+                        <option value="0">得点を選択</option>
+                        <option value="1">1点 - 挑戦した</option>
+                        <option value="2">2点 - 少しできた</option>
+                        <option value="3">3点 - まあまあできた</option>
+                        <option value="4">4点 - よくできた</option>
+                        <option value="5">5点 - 完璧！</option>
+                    </select>
+                    <button class="complete-btn" onclick="completeMission(2)">完了</button>
+                </div>
+                <div class="reward">🌈 5分早上がり</div>
+            </div>
+
+            <!-- Mission 3 -->
+            <div class="mission-card" id="mission3">
+                <div class="mission-header">
+                    <div class="mission-day">Day 3</div>
+                </div>
+                <div class="mission-title">翻訳禁止チャレンジ</div>
+                <div class="mission-instruction">日本語を使わず"イメージで話す"</div>
+                <div class="english-example">My brain is still sleeping.</div>
+                <div class="mission-controls">
+                    <input type="text" class="reflection-input" placeholder="今日の気づきを記入..." id="reflection3">
+                    <select class="score-select" id="score3">
+                        <option value="0">得点を選択</option>
+                        <option value="1">1点 - 挑戦した</option>
+                        <option value="2">2点 - 少しできた</option>
+                        <option value="3">3点 - まあまあできた</option>
+                        <option value="4">4点 - よくできた</option>
+                        <option value="5">5点 - 完璧！</option>
+                    </select>
+                    <button class="complete-btn" onclick="completeMission(3)">完了</button>
+                </div>
+                <div class="reward">🍫 チョコ解禁</div>
+            </div>
+
+            <!-- Mission 4 -->
+            <div class="mission-card" id="mission4">
+                <div class="mission-header">
+                    <div class="mission-day">Day 4</div>
+                </div>
+                <div class="mission-title">録音サバイバー</div>
+                <div class="mission-instruction">自分の声を聴いて褒める</div>
+                <div class="english-example">（自由トピック）</div>
+                <div class="mission-controls">
+                    <input type="text" class="reflection-input" placeholder="今日の気づきを記入..." id="reflection4">
+                    <select class="score-select" id="score4">
+                        <option value="0">得点を選択</option>
+                        <option value="1">1点 - 挑戦した</option>
+                        <option value="2">2点 - 少しできた</option>
+                        <option value="3">3点 - まあまあできた</option>
+                        <option value="4">4点 - よくできた</option>
+                        <option value="5">5点 - 完璧！</option>
+                    </select>
+                    <button class="complete-btn" onclick="completeMission(4)">完了</button>
+                </div>
+                <div class="reward">🎬 推し動画10分</div>
+            </div>
+
+            <!-- Mission 5 -->
+            <div class="mission-card" id="mission5">
+                <div class="mission-header">
+                    <div class="mission-day">Day 5</div>
+                </div>
+                <div class="mission-title">失敗ヒーロー</div>
+                <div class="mission-instruction">英語で失敗談を語れ</div>
+                <div class="english-example">I said "I'm exciting" to my boss 😅</div>
+                <div class="mission-controls">
+                    <input type="text" class="reflection-input" placeholder="今日の気づきを記入..." id="reflection5">
+                    <select class="score-select" id="score5">
+                        <option value="0">得点を選択</option>
+                        <option value="1">1点 - 挑戦した</option>
+                        <option value="2">2点 - 少しできた</option>
+                        <option value="3">3点 - まあまあできた</option>
+                        <option value="4">4点 - よくできた</option>
+                        <option value="5">5点 - 完璧！</option>
+                    </select>
+                    <button class="complete-btn" onclick="completeMission(5)">完了</button>
+                </div>
+                <div class="reward">🧘‍♀️ 夜ヨガ</div>
+            </div>
+
+            <!-- Mission 6 -->
+            <div class="mission-card" id="mission6">
+                <div class="mission-header">
+                    <div class="mission-day">Day 6</div>
+                </div>
+                <div class="mission-title">上司に報告ミッション</div>
+                <div class="mission-instruction">"報告する"つもりで話す</div>
+                <div class="english-example">I checked the report. It's ready.</div>
+                <div class="mission-controls">
+                    <input type="text" class="reflection-input" placeholder="今日の気づきを記入..." id="reflection6">
+                    <select class="score-select" id="score6">
+                        <option value="0">得点を選択</option>
+                        <option value="1">1点 - 挑戦した</option>
+                        <option value="2">2点 - 少しできた</option>
+                        <option value="3">3点 - まあまあできた</option>
+                        <option value="4">4点 - よくできた</option>
+                        <option value="5">5点 - 完璧！</option>
+                    </select>
+                    <button class="complete-btn" onclick="completeMission(6)">完了</button>
+                </div>
+                <div class="reward">🛁 バスソルト</div>
+            </div>
+
+            <!-- Mission 7 -->
+            <div class="mission-card" id="mission7">
+                <div class="mission-header">
+                    <div class="mission-day">Day 7</div>
+                </div>
+                <div class="mission-title">Final Quest✨</div>
+                <div class="mission-instruction">"I am deserved to do it"を語る</div>
+                <div class="english-example">I feel ready to speak English anytime.</div>
+                <div class="mission-controls">
+                    <input type="text" class="reflection-input" placeholder="今日の気づきを記入..." id="reflection7">
+                    <select class="score-select" id="score7">
+                        <option value="0">得点を選択</option>
+                        <option value="1">1点 - 挑戦した</option>
+                        <option value="2">2点 - 少しできた</option>
+                        <option value="3">3点 - まあまあできた</option>
+                        <option value="4">4点 - よくできた</option>
+                        <option value="5">5点 - 完璧！</option>
+                    </select>
+                    <button class="complete-btn" onclick="completeMission(7)">完了</button>
+                </div>
+                <div class="reward">👏 自分に拍手</div>
+            </div>
+        </div>
+
+        <!-- Instructions Section -->
+        <div class="instructions-section">
+            <h2 class="instructions-title">📖 ゲームルール & 使い方</h2>
+            <div class="instruction-item">
+                <strong>🎯 ゲームコンセプト</strong><br>
+                「努力」ではなく「冒険」──学習を"RPG"化する
+            </div>
+            <div class="instruction-item">
+                <strong>🎮 遊び方</strong><br>
+                1. 毎日1つのミッションに挑戦<br>
+                2. 英語で話す例を参考に、実際に声に出して練習<br>
+                3. 完了したら「今日の気づき」欄に感想を記入<br>
+                4. 得点を入力（1-5点で自己評価）<br>
+                5. ごほうびを自分に与えてください！<br>
+                6. 7日間完了でLEVEL UP達成！
+            </div>
+            <div class="instruction-item">
+                <strong>💡 成功のコツ</strong><br>
+                • 完璧を求めず、楽しむことを最優先に<br>
+                • 小さな成功を積み重ねることが大切<br>
+                • 失敗も学習の一部として受け入れる<br>
+                • 毎日続けることで習慣化を目指す<br>
+                • 自分を褒めることを忘れずに！
+            </div>
+        </div>
+    </div>
+
+    <!-- Celebration Modal -->
+    <div class="celebration" id="celebration">
+        <div class="celebration-content">
+            <div class="celebration-title">🏆 LEVEL UP!</div>
+            <div class="celebration-message">
+                おめでとうございます！<br>
+                あなたの英語スピーキングが再起動しました！
+            </div>
+            <button class="close-celebration" onclick="closeCelebration()">素晴らしい！</button>
+        </div>
+    </div>
+
+    <script>
+        let completedMissions = 0;
+        let totalScore = 0;
+
+        function completeMission(missionNumber) {
+            const missionCard = document.getElementById(`mission${missionNumber}`);
+            const scoreSelect = document.getElementById(`score${missionNumber}`);
+            const button = missionCard.querySelector('.complete-btn');
+            
+            const score = parseInt(scoreSelect.value);
+            
+            if (score === 0) {
+                alert('得点を選択してください！');
+                return;
+            }
+
+            // Mark as completed
+            missionCard.classList.add('completed');
+            button.textContent = '完了済み';
+            button.classList.add('completed');
+            button.disabled = true;
+            
+            // Update score
+            totalScore += score;
+            completedMissions++;
+            
+            // Update display
+            updateProgress();
+            
+            // Check for level up
+            if (totalScore >= 21) {
+                setTimeout(() => {
+                    showCelebration();
+                }, 1000);
+            }
+        }
+
+        function updateProgress() {
+            document.getElementById('currentScore').textContent = totalScore;
+            
+            const progressBar = document.getElementById('progressBar');
+            const percentage = (totalScore / 21) * 100;
+            progressBar.style.width = percentage + '%';
+            
+            if (totalScore >= 21) {
+                document.getElementById('levelUpMessage').style.display = 'block';
+            }
+        }
+
+        function showCelebration() {
+            document.getElementById('celebration').style.display = 'flex';
+            
+            // Add confetti effect
+            createConfetti();
+        }
+
+        function closeCelebration() {
+            document.getElementById('celebration').style.display = 'none';
+        }
+
+        function createConfetti() {
+            const colors = ['#2E8B57', '#4CAF50', '#FF8C00', '#FFA500'];
+            
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.style.position = 'fixed';
+                confetti.style.width = '10px';
+                confetti.style.height = '10px';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.top = '-10px';
+                confetti.style.borderRadius = '50%';
+                confetti.style.pointerEvents = 'none';
+                confetti.style.zIndex = '1001';
+                
+                document.body.appendChild(confetti);
+                
+                const animation = confetti.animate([
+                    { transform: 'translateY(0px) rotate(0deg)', opacity: 1 },
+                    { transform: `translateY(${window.innerHeight + 100}px) rotate(720deg)`, opacity: 0 }
+                ], {
+                    duration: 3000,
+                    easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+                });
+                
+                animation.onfinish = () => confetti.remove();
+            }
+        }
+
+        // Initialize
+        updateProgress();
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+

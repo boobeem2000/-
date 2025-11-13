@@ -1,0 +1,16 @@
+Atsuko Speaking Restart Game,7 Days to Restart Your English Voice
+,
+Progress Status,
+Total Score:,=SUM(Mission_Log!F2:F8),/ 21 points
+,
+=IF(B7=21,"LEVEL UP! Congratulations!","Keep going!"),
+,
+Today Mission,
+Complete daily missions in Mission Log sheet!,
+,
+How to Use,
+1. Challenge one mission per day,
+2. Record completion in Mission Log,
+3. Enter scores to track progress,
+4. Complete 7 days for LEVEL UP!,
+
