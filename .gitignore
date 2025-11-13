@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Temporary files
+*.tmp
+*.log
+~$*
+
+# Personal/Private files (add any sensitive files here)
+*.key
+*.pem
+*.env
+
+# Large files
+*.mp4
+*.mov
+*.avi
+
+# Office temporary files
+~$*.docx
+~$*.xlsx
+~$*.pptx
+
